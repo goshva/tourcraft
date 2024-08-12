@@ -12,7 +12,7 @@ export const useMapStore = defineStore('map', {
     },
     async loadFeatures() {
       try {
-        const response = await fetch('/map.json');
+        const response = await fetch('./map.json');
         const data = await response.json();
         this.setFeatures(data.config?.userMap?.features);
       } catch (error) {
