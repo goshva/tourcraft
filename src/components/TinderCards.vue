@@ -5,28 +5,27 @@
       <i class="fa fa-heart"></i>
     </div>
     <div class="tinder--cards">
-      <div
-        v-for="(card, index) in mapStore.features"
-        :key="index"
-        class="tinder--card"
+      <div 
+        v-for="(card, index) in mapStore.features" 
+        :key="index" 
+        class="tinder--card" 
         :style="{
           background: card.background || '',
           zIndex: mapStore.features.length - index,
-          /*transform: getCardTransform(index),
-          opacity: getCardOpacity(index)*/
         }"
-        ref="cardRefs"
-      >
-      <p v-if="card.content.text">{{ card.content.text }}</p>
+        ref="cardRefs">
+      
+        <p v-if="card.content.text">{{ card.content.text }}</p>
 
-      <img :src="card.imgSrc || `https://picsum.photos/400/300/?=${index}`" alt="Card image">
-      <h3>{{ card.title }}</h3>
+        <img :src="card.imgSrc || `https://picsum.photos/400/300/?=${index}`" alt="Card image">
+        <h3>{{ card.title }}</h3>
         <p v-if="card.content.text">{{ card.content.text }}</p>
       </div>
     </div>
     <div class="tinder--buttons">
-      <button id="nope" @click="handleNopeClick"><i class="fa fa-trash"></i></button>
-      <button id="love" @click="handleLoveClick"><i class="fa fa-shopping-cart"></i></button>
+      <button id="nope" @click="handleNopeClick"><i class="fa fa-trash"></i>{{ mapStore.nope.length }}</button>
+      
+      <button id="love" @click="handleLoveClick"><i class="fa fa-heart-o"></i> {{ mapStore.love.length }}</button>
     </div>
   </div>
 </template>
@@ -35,44 +34,22 @@
 import { ref, onMounted } from 'vue';
 import Hammer from 'hammerjs';
 import { useMapStore } from '../stores/useMapStore';
-const mapStore = useMapStore();
 
-const cards = ref([
-  {
-    background: '#e7c1e1',
-    imgSrc: 'https://www.careerslive.london/assets/img/hand.gif',
-    title: 'Листай',
-  },
-  {
-    imgSrc: 'https://sun9-17.userapi.com/impf/Id1_N41IsAWLfARgOCdAOJM6995defM1MJCEBg/Ilxncs2R9n0.jpg?size=1080x629&quality=95&sign=e6bc01c0e2262db586ead53f6a9c9c76&type=album',
-    title: 'Видеоблогинг',
-    description: 'Учимся делать качественный видеоконтент, уверенно держаться перед камерой и продвигать свой канал в YouTube и TikTok.',
-  },
-  {
-    imgSrc: 'https://sun9-33.userapi.com/impf/qqKQ9Z7aZ5NKB41mXxKecOkdL2Cw4WoeLTs5gg/mABnJUyk4MQ.jpg?size=1080x544&quality=95&sign=46c85b09cf199b1cbef5e8ee3df31b06&type=album',
-    title: 'Геймдизайн',
-    description: 'Какими бы разными ни были дети, всех их объединяет одно: они любят игры! Мы научим их создавать свои. И поможем сделать первый шаг к востребованной профессии.',
-  },
-  // Add more cards here...
-]);
+const mapStore = useMapStore();
 
 const tinderContainer = ref(null);
 const cardRefs = ref([]);
 
-// Calculate the card transform based on index
 const getCardTransform = (index) => `scale(${(20 - index) / 20}) translateY(-${30 * index}px)`;
 
-// Calculate the card opacity based on index
 const getCardOpacity = (index) => (10 - index) / 10;
 
-// Initialize cards stack
 const initCards = () => {
   if (tinderContainer.value) {
     tinderContainer.value.classList.add('loaded');
   }
 };
 
-// Handle swipe events
 const handlePan = (event, el) => {
   el.classList.add('moving');
   if (event.deltaX === 0 || (event.center.x === 0 && event.center.y === 0)) return;
@@ -87,7 +64,6 @@ const handlePan = (event, el) => {
   el.style.transform = `translate(${event.deltaX}px, ${event.deltaY}px) rotate(${rotate}deg)`;
 };
 
-// Handle the end of the swipe
 const handlePanEnd = (event, el) => {
   el.classList.remove('moving');
 
@@ -107,6 +83,14 @@ const handlePanEnd = (event, el) => {
 
     el.style.transform = `translate(${toX}px, ${toY + event.deltaY}px) rotate(${rotate}deg)`;
     el.classList.add('removed');
+
+    // Update store based on swipe direction
+    const index = [...cardRefs.value].indexOf(el);
+    if (toX > 0) {
+      mapStore.addToLove(index);
+    } else {
+      mapStore.addToNope(index);
+    }
   } else {
     el.style.transform = '';
   }
@@ -114,7 +98,6 @@ const handlePanEnd = (event, el) => {
   initCards();
 };
 
-// Handle button actions (like/dislike)
 const handleButtonAction = (love) => {
   const cardsArray = cardRefs.value.filter(card => !card.classList.contains('removed'));
   const moveOutWidth = document.body.clientWidth * 1.5;
@@ -124,10 +107,13 @@ const handleButtonAction = (love) => {
   const card = cardsArray[0];
   card.classList.add('removed');
 
+  const index = [...cardRefs.value].indexOf(card);
   if (love) {
     card.style.transform = `translate(${moveOutWidth}px, -100px) rotate(-30deg)`;
+    mapStore.addToLove(index);
   } else {
     card.style.transform = `translate(-${moveOutWidth}px, -100px) rotate(30deg)`;
+    mapStore.addToNope(index);
   }
 
   initCards();
@@ -136,28 +122,18 @@ const handleButtonAction = (love) => {
 const handleNopeClick = () => handleButtonAction(false);
 const handleLoveClick = () => handleButtonAction(true);
 
-const phoneMe = () => {
-  window.location.replace('tel:+79620002200');
-};
-
-const whatsapp = () => {
-  window.location.replace('https://chat.whatsapp.com/DaNtmgQ74GdCixHxdOBAVA');
-};
-
-// Setup Hammer.js events on mount
 onMounted(() => {
   mapStore.loadFeatures().then(() => {
     initCards();
-  });
+    cardRefs.value = tinderContainer.value.querySelectorAll('.tinder--card');
 
-  // Populate cardRefs with actual card elements
-  cardRefs.value = tinderContainer.value.querySelectorAll('.tinder--card');
+    cardRefs.value.forEach(el => {
+      const hammer = new Hammer(el);
 
-  cardRefs.value.forEach(el => {
-    const hammer = new Hammer(el);
+      hammer.on('pan', event => handlePan(event, el));
+      hammer.on('panend', event => handlePanEnd(event, el));
+    });
 
-    hammer.on('pan', event => handlePan(event, el));
-    hammer.on('panend', event => handlePanEnd(event, el));
   });
 });
 </script>
