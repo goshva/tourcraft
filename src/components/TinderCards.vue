@@ -5,16 +5,11 @@
       <i class="fa fa-heart"></i>
     </div>
     <div class="tinder--cards">
-      <div 
-        v-for="(card, index) in mapStore.features" 
-        :key="index" 
-        class="tinder--card" 
-        :style="{
-          background: card.background || '',
-          zIndex: mapStore.features.length - index,
-        }"
-        ref="cardRefs">
-      
+      <div v-for="(card, index) in mapStore.features" :key="index" class="tinder--card" :style="{
+        background: card.background || '',
+        zIndex: mapStore.features.length - index,
+      }" ref="cardRefs">
+
         <p v-if="card.content.text">{{ card.content.text }}</p>
 
         <img :src="card.imgSrc || `https://picsum.photos/400/300/?=${index}`" alt="Card image">
@@ -24,7 +19,7 @@
     </div>
     <div class="tinder--buttons">
       <button id="nope" @click="handleNopeClick"><i class="fa fa-trash"></i>{{ mapStore.nope.length }}</button>
-      
+
       <button id="love" @click="handleLoveClick"><i class="fa fa-heart-o"></i> {{ mapStore.love.length }}</button>
     </div>
   </div>
@@ -139,5 +134,15 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Add your existing styles here */
+.tinder {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (orientation: landscape) {
+  .tinder--cards {
+    padding-top: 58em;
+  }
+}
 </style>
