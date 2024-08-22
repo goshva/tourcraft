@@ -19,14 +19,18 @@
     </div>
     <div class="tinder--buttons">
       <button id="nope" @click="handleNopeClick"><i class="fa fa-trash"></i>{{ mapStore.nope.length }}</button>
-
       <button id="love" @click="handleLoveClick"><i class="fa fa-heart-o"></i> {{ mapStore.love.length }}</button>
+      <button id="love" @click="handleImageUploader('Особняк князя Дондукова-Корсакова')"><i class="fa fa-photo"></i>
+      </button>
+      <ImageUploader />
+
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import ImageUploader from '../components/ImageUploader.vue';
 import Hammer from 'hammerjs';
 import { useMapStore } from '../stores/useMapStore';
 
@@ -58,6 +62,9 @@ const handlePan = (event, el) => {
 
   el.style.transform = `translate(${event.deltaX}px, ${event.deltaY}px) rotate(${rotate}deg)`;
 };
+const handleImageUploader = (love) => {
+    mapStore.genImg(love)
+  }
 
 const handlePanEnd = (event, el) => {
   el.classList.remove('moving');
