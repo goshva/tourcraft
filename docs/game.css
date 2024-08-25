@@ -13,15 +13,8 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
-.tinder-app {
-  width: 100vw;
-  height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  opacity: 0;
-  transition: opacity 0.1s ease-in-out;
+.tinder {
+
 }
 
 .loaded.tinder {
