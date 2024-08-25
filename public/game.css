@@ -14,14 +14,7 @@ body {
 }
 
 .tinder {
-  width: 100vw;
-  height: 90vh;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  opacity: 0;
-  transition: opacity 0.1s ease-in-out;
+
 }
 
 .loaded.tinder {
